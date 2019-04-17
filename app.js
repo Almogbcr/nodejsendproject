@@ -4,16 +4,10 @@ var seedDB = require("./seed");
 
 require("./configs");
 
-var firstInit = true;
-
-if(firstInit){
-    firstInit = false;
-    //seedDB.seedDB();
-}
+//seedDB();
 
 
 var usersRouter = require('./routes/users');
-
 
 var app = express();
 app.set("view engine", "ejs");

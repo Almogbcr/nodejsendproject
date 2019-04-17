@@ -1,52 +1,43 @@
-var fetch = require('node-fetch');
-var User = require('./models/users');
+var axios = require('axios');
+var User = require('./models/Users');
 var Task = require('./models/tasks');
 var Post = require('./models/posts');
 
-var seed = {}
-
-seed.seedDB = () => {
-    User.deleteMany({} , (err,data) => {
-        if(err){
-            res.send(err);
-        }else{
-            Task.deleteMany({});
-            Post.deleteMany({});
-            getData();
-        }
-    });
-}
-
-function getData () {
-    fetch('https://jsonplaceholder.typicode.com/users')
-    .then(res => res.json())
-    .then(data => {
-        User.insertMany(data);
-        console.log("Users Added to DB")
-        } ,
-        
-    );
-    getPosts();
-    getTasks();
+function getUsers() {
+        return axios.get('https://jsonplaceholder.typicode.com/Users')
 }
 function getPosts() {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-    .then(res => res.json())
-    .then(data => {
-        Post.insertMany(data);
-        console.log("Posts Added to DB")
-        }
-    );
+    return axios.get('https://jsonplaceholder.typicode.com/Posts')
 }
-function getTasks () {
-    fetch('https://jsonplaceholder.typicode.com/todos')
-    .then(res => res.json())
-    .then(data => {
-        Task.insertMany(data);
-        console.log("Tasks Added to DB")
-        }
-    );
+function seed() {
+    getUsers().then(resp => {
+        var users = [];
+        users.push(resp.data);
+        users.forEach((userData) => {
+            User.create(userData , (err,usersData) => {
+                if(err){
+                    console.log(err)
+                }else{
+                    console.log("Users Added to DB");
+                }
+            });
+        })
+    })
+    getPosts().then(resPost => {
+        var postsData = [];
+        postsData.push(resPost.data);
+        postsData.forEach((postData) => {
+            Post.create(postData , (err,pData) => {
+                if(err){
+                    console.log(err)
+                }else{
+                    console.log("Posts added to DB")
+                }
+            })
+        })
+    })
 }
+
 
 
 module.exports = seed;
