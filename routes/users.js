@@ -1,6 +1,6 @@
 var express = require('express');
-var router = express.Router()
-var User = require('../models/Users');
+var router = express.Router();
+
 
 router.route("/").get((req,res) => {
     User.find({} , (err,users) =>{
@@ -13,7 +13,7 @@ router.route("/").get((req,res) => {
 });
 
 router.route("/:id").get((req,res) => {
-    User.findById(req.params.id , (err,foundUser) => {
+    modelDB.User.findById(req.params.id , (err,foundUser) => {
         if(err){
             return res.send(err)
         }else{

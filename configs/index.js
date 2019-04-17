@@ -1,7 +1,10 @@
 var mongoose = require('mongoose');
+var seed = require('../seed');
 
 mongoose.connect("mongodb://localhost:27017/endproject", { useNewUrlParser: true});
-var db = mongoose.connection;
+var mongodb = mongoose.connection;
 
-db.once('open' , () => console.log('Connected'));
-db.once('error' , () => console.log('Connection Failed'));
+mongodb.once('open' , () => console.log('Connected'));
+mongodb.once('error' , () => console.log('Connection Failed'));
+
+seed();
