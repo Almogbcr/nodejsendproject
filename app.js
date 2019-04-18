@@ -1,10 +1,9 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
-
 require("./configs");
 
-var usersRouter = require('./seed');
+var usersRouter = require('./routes/users');
 
 var app = express();
 app.set("view engine", "ejs");
