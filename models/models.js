@@ -13,7 +13,9 @@ var postSchema = new mongoose.Schema({
     body: String
 });
 var phoneSchema = new mongoose.Schema({
-    userId: {type:mongoose.Schema.Types.ObjectId},
+    userId:String,
+    phoneType:String,
+    phoneNumber:String
 
 })
 var userSchema = new mongoose.Schema({
@@ -40,17 +42,17 @@ var userSchema = new mongoose.Schema({
     catchPhrase: String,
     bs: String
     }
-
-
 });
 var User = mongoose.model("Users" , userSchema);
 var Post = mongoose.model("Post" , postSchema);
 var Task = mongoose.model("Task" , taskSchema);
+var Phone = mongoose.model("Phone" , phoneSchema);
 
 var modelObj = {
     User,
     Post,
-    Task
+    Task,
+    Phone
 }
 
 module.exports = modelObj;
