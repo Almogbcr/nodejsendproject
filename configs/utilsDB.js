@@ -3,16 +3,34 @@ var model = require("../models/models");
 
 var utilsDB = {}
 
-utilsDB.getUsersData =() => {
+utilsDB.sendDataToDb = () => {
+    getUsersData();
+    console.log("Done");
+}
+
+function getUsersData() {
     utils.getUsers().then(res => {
         model.User.create(res , (err,users) => {
                 getTasksData(users);
                 getPostsData(users);
                 createPhonesData(users);
-                console.log("Done");
+
         })
     })
 
+}
+function getTasksData(users){
+    utils.getTasks().then(res => {
+        users.forEach((user) => {
+            model.Task.create(res , (err,task) => {
+                task.forEach((t) => {
+                    if(user.id === t.userId){
+                        user.tasks.push(t);
+                    }
+                })
+            })
+        })
+    })
 }
 
 function getPostsData(users){
@@ -29,25 +47,14 @@ function getPostsData(users){
         })
     })
 }
-function getTasksData(users){
-    utils.getTasks().then(res => {
-        users.forEach((user) => {
-            model.Task.create(res , (err,task) => {
-                task.forEach((t) => {
-                    if(user.id === t.userId){
-                        user.tasks.push(t);
-                    }
-                })
-            })
-        })
-    })
-}
+
 function createPhonesData(users){
     users.forEach((user) => {
         var userID = user.id;
         var phoneNumberData = user.phone;
         model.Phone.create({
             userId : userID,
+            phoneType: " ",
             phoneNumber : phoneNumberData
         })
     })
