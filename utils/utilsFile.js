@@ -1,5 +1,5 @@
 const jsonf = require('jsonfile');
-var model = require("../models/models");
+var model = require("../models");
 
 
 function createFile() {
@@ -13,7 +13,7 @@ model.User.find({} , (err,users) => {
     users.forEach((user) => {
         var path = 'changeLogs/'
         var filename =  path+user.name+"-"+user._id+".json"
-        jsonf.writeFile(filename, obj , {flag:'a' , EOL: '\r\n'}, (err) => {
+        jsonf.writeFile(filename, obj , {flag:'a'}, (err) => {
             if(err){
                 console.log(err)
             }

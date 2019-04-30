@@ -3,9 +3,8 @@ var utils = {}
 
 utils.getUsers = () => {
     var promise = new Promise((res) => {
-        axios.get('https://jsonplaceholder.typicode.com/Users').then(resp => {
-            res(resp.data)
-        })
+        axios.get('https://jsonplaceholder.typicode.com/Users')
+        .then(usersData => res(usersData.data));
     })
     return promise;
 }

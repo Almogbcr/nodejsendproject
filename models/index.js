@@ -3,7 +3,7 @@ var taskSchema = new mongoose.Schema({
     userId:String,
     id: String,
     title : String,
-    completed: Boolean
+    completed: {type:Boolean , default:false}
 });
 
 var postSchema = new mongoose.Schema({

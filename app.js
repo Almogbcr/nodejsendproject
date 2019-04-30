@@ -1,29 +1,22 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var fs = require('fs-extra');
-//var seed = require('./seed');
-var createFiles = require("./configs/utilsFile");
+var seed = require('./seed');
 
-require("./configs");
 
-var usersRouter = require('./routes/users');
+require("./configs/index");
+seed();
+
+var usersRoute = require('./routes/users');
+var postsRouter = require("./routes/posts");
 
 var app = express();
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.urlencoded({extended: true}));
 
-var path = 'changeLogs/'
-fs.readdir(path,(err,files) => {
-    if(files <= 0){
-            createFiles();
-    }else{
-        console.log("Files already Exists");
-    }
-})
 
-
-app.use("/" , usersRouter);
+app.use("/" , usersRoute);
+app.use("/" , postsRouter);
 
 const PORT = 8000 || process.env.PORT
 

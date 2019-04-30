@@ -1,10 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var model = require('../models/models');
-
+var Model = require('../models');
 
 router.route("/").get((req,res) => {
-    model.User.find({} , (err,users) =>{
+    Model.User.find({} , (err,users) =>{
         if(err){
             return res.send(err)
         }else{
@@ -14,31 +13,11 @@ router.route("/").get((req,res) => {
 });
 
 router.route("/:id").get((req,res) => {
-    model.User.findById(req.params.id , (err,foundUser) => {
+    Model.User.findById(req.params.id , (err,foundUser) => {
         if(err){
             return res.send(err)
         }else{
             return res.json(foundUser);
-        }
-    })
-});
-
-router.route("/:id/posts").get((req,res) => {
-    model.User.findById(req.params.id , (err,user) => {
-        if(err){
-            return res.send(err)
-        }else{
-            return res.json(user.posts);
-        }
-    })
-});
-
-router.route("/:id/tasks").get((req,res) => {
-    model.User.findById(req.params.id , (err,user) => {
-        if(err){
-            return res.send(err)
-        }else{
-            return res.json(user.tasks);
         }
     })
 });
