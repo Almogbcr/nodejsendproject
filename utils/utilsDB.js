@@ -35,21 +35,5 @@ utilsDB.insertTasksToDb = () => {
     })
     return promise;
 }
-utilsDB.insertUsersToDb = () => {
-    var promise = new Promise((res) => {
-        Model.User.countDocuments({} , (err,count) => {
-            if(err){
-                console.log("DB is not connected")
-            }else if(count <= 0){
-                utils.getUsers().then(usersData => {
-                    Model.User.insertMany(usersData , (err,users) => {
-                        res(users);
-                    })
-                })
-            }
-        })
-    })
-    return promise;
-}
 
 module.exports = utilsDB;

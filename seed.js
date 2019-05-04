@@ -1,6 +1,9 @@
 var utilsDb = require("./utils/utilsDB");
 var utils = require("./utils/utils");
-var Model = require("./models");
+var User = require("./models").User;
+var Post = require("./models").Post;
+var Task = require("./models").Task;
+var Phone = require("./models").Phone;
 var fs = require('fs-extra');
 var createFiles = require("./utils/utilsFile");
 
@@ -8,18 +11,18 @@ function seed(){
     var usersArr = [];
     utilsDb.insertPostToDb().then(() => {
         utilsDb.insertTasksToDb().then(() => {
-            Model.User.countDocuments({} , (err,count) => {
+            User.countDocuments({} , (err,count) => {
                 if(!err&&count <= 0){
                     utils.getUsers().then(usersData => {
                         usersArr.push(usersData);
                         usersArr.forEach(user => {
-                            Model.User.insertMany(user , (err,uData) => {
+                            User.insertMany(user , (err,uData) => {
                                 if(err){
                                     console.log(err);
                                 }else{
-                                    Model.Post.find({} , (err,foundPosts) => {
-                                        Model.Task.find({} , (err,foundTasks) => {
-                                            Model.User.find({} , (err,foundUsers) => {
+                                   Post.find({} , (err,foundPosts) => {
+                                        Task.find({} , (err,foundTasks) => {
+                                            User.find({} , (err,foundUsers) => {
                                                 foundUsers.forEach(foundUser => {
                                                     foundPosts.forEach(foundPost => {
                                                         if(foundUser.id === foundPost.userId){
@@ -59,12 +62,12 @@ function seed(){
 }
 
 function createPhonesData(){
-    Model.User.find({} , (err,users) =>{
+    User.find({} , (err,users) =>{
         users.forEach(user => {
             var userID = user.id;
             var phoneNumber = user.phone;
 
-            Model.Phone.create({
+            Phone.create({
             userId : userID,
             phoneType: " ",
             phoneNumber : phoneNumber
