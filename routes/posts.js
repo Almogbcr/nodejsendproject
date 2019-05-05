@@ -31,7 +31,7 @@ router.route("/:id/posts/new").post((req,res) => {
 
 //Edit Post
 router.route("/:id/posts/:post_id").put((req,res) => {
-    User.findOne(req.params.id , (err,user) => {
+    User.findById(req.params.id , (err,user) => {
         if(req.body.title == null || req.body.body == null){
             return res.send("One or more of the data is missing.\nPlease fill the data correctly.\nData has not been modified\n" + 
             "Example:\n"+
@@ -64,7 +64,7 @@ router.route("/:id/posts/:post_id").put((req,res) => {
 
 //Delete Post
 router.route("/:id/posts/:post_id").delete((req,res) => {
-    User.findOne(req.params.id , (err,user) => {
+    User.findById(req.params.id , (err,user) => {
         if(err){
             console.log(err)
         }else{

@@ -1,7 +1,8 @@
 var express  = require('express');
 var router = express.Router();
 var User = require('../models').User;
-var File = require("../utils/utilsFile");
+var Post = require('../models').Post;
+var File = require("../utils/utilsFile")
 const jsonf = require('jsonfile');
 
 var date = new Date(Date.now());
@@ -16,8 +17,15 @@ router.route("/").get((req,res) => {
         }
     });
 });
-
-
+router.route("/:id/file").get((req,res) => {
+    User.findById(req.params.id , (err,user) =>{
+        if(err){
+            return res.send(err)
+        }else{
+            File.writeNewLog(user,Post);
+        }
+    });
+});
 
 
 module.exports = router;
