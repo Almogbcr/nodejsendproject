@@ -1,11 +1,14 @@
 var express  = require('express');
 var router = express.Router();
-var Model = require('../models');
+var User = require('../models').User;
+var File = require("../utils/utilsFile");
+const jsonf = require('jsonfile');
 
+var date = new Date(Date.now());
 
 //Get all Users
 router.route("/").get((req,res) => {
-    Model.User.find({} , (err,users) =>{
+    User.find({} , (err,users) =>{
         if(err){
             return res.send(err)
         }else{
@@ -13,6 +16,7 @@ router.route("/").get((req,res) => {
         }
     });
 });
+
 
 
 
