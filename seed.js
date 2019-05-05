@@ -5,7 +5,7 @@ var Post = require("./models").Post;
 var Task = require("./models").Task;
 var Phone = require("./models").Phone;
 var fs = require('fs-extra');
-var createFiles = require("./utils/utilsFile");
+var File = require("./utils/utilsFile");
 
 function seed(){
     var usersArr = [];
@@ -42,15 +42,18 @@ function seed(){
                                 }
                             })
                             //Files
-                            var path = 'changeLogs/'
-                            fs.readdir(path,(err,files) => {
-                                if(files <= 0 && !err){
-                                    createFiles();
-                                    createPhonesData();
-                                }else{
-                                    console.log("Files already Exists");
-                                }
-                            })
+                            var dir = 'changeLogs/'
+                            if(!fs.exists(dir)) {
+                                fs.mkdir(dir);
+                                console.log("No Such Folder , Creating...");
+                            }else{
+                                fs.readdir(dir,(err,files) => {
+                                    if(files <= 0 && !err){
+                                        createPhonesData();
+                                        File.createFileOnInit();
+                                    }
+                                })
+                            }
                         })
                     })
                 }else{

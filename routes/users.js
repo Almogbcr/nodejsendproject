@@ -1,9 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose')
+var File = require("../utils/utilsFile");
 var User = require('../models').User;
 var Post = require('../models').Post;
 var Task = require('../models').Task;
+
+var date = new Date(Date.now());
 
 //Get Specific User by Id
 router.route("/:id").get((req,res) => {
@@ -40,34 +43,33 @@ router.route("/:id/tasks").get((req,res) => {
 
 //Create New User
 router.route("/new").post((req,res) => {
-    User.find({} , (err,users) => {
-        var guid = mongoose.Types.ObjectId();
-        var newUser = new User({
-            id:guid,
-            name: req.body.name,
-            username: req.body.username,
-            email: req.body.email,
-            address: {
-                street: req.body.address.street,
-                suite: req.body.address.suite,
-                city: req.body.address.city,
-                zipcode: req.body.address.zipcode,
-                geo:{
-                    lat: req.body.address.geo.lat,
-                    lng: req.body.address.geo.lng,
+    var guid = mongoose.Types.ObjectId();
+    var newUser = new User({
+        id:guid,
+        name: req.body.name,
+        username: req.body.username,
+        email: req.body.email,
+        address: {
+            street: req.body.address.street,
+            suite: req.body.address.suite,
+            city: req.body.address.city,
+            zipcode: req.body.address.zipcode,
+            geo:{
+                lat: req.body.address.geo.lat,
+                lng: req.body.address.geo.lng,
                 }
-            },
-            phone: req.body.phone,
-            website: req.body.website,
-            company:{
-                name: req.body.company.name,
-                catchPhrase: req.body.company.catchPhrase,
-                bs: req.body.company.bs
+        },
+        phone: req.body.phone,
+        website: req.body.website,
+        company:{
+            name: req.body.company.name,
+            catchPhrase: req.body.company.catchPhrase,
+            bs: req.body.company.bs
             },
         })
-        newUser.save();
-        return res.send("User Created");
-    })
+    newUser.save();
+    File.createFileOnUserCreate(newUser);
+    return res.send("User Created");
 })
 
 //Update a User

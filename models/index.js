@@ -43,7 +43,7 @@ var userSchema = new mongoose.Schema({
     bs: String
     }
 });
-var User = mongoose.model("Users" , userSchema);
+var User = mongoose.model("User" , userSchema);
 var Post = mongoose.model("Post" , postSchema);
 var Task = mongoose.model("Task" , taskSchema);
 var Phone = mongoose.model("Phone" , phoneSchema);
