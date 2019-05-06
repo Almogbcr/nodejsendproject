@@ -22,7 +22,13 @@ router.route("/:id/file").get((req,res) => {
         if(err){
             return res.send(err)
         }else{
-            File.writeNewLog(user,Post);
+            if(user === null){
+                return res.send("No Such User");
+            }else{
+                File.writeNewLog(user,User,"Update","Old Data","new Data");
+                return res.send("Log updated")
+            }
+
         }
     });
 });

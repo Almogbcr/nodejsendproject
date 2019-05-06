@@ -7,62 +7,6 @@ var Phone = require("./models").Phone;
 var fs = require('fs-extra');
 var File = require("./utils/utilsFile");
 
-function seed(){
-    var usersArr = [];
-    utilsDb.insertPostToDb().then(() => {
-        utilsDb.insertTasksToDb().then(() => {
-            User.countDocuments({} , (err,count) => {
-                if(!err&&count <= 0){
-                    utils.getUsers().then(usersData => {
-                        usersArr.push(usersData);
-                        usersArr.forEach(user => {
-                            User.insertMany(user , (err,uData) => {
-                                if(err){
-                                    console.log(err);
-                                }else{
-                                   Post.find({} , (err,foundPosts) => {
-                                        Task.find({} , (err,foundTasks) => {
-                                            User.find({} , (err,foundUsers) => {
-                                                foundUsers.forEach(foundUser => {
-                                                    foundPosts.forEach(foundPost => {
-                                                        if(foundUser.id === foundPost.userId){
-                                                            foundUser.posts.push(foundPost);
-                                                        }
-                                                    })
-                                                    foundTasks.forEach(foundTask => {
-                                                        if(foundUser.id === foundTask.userId){
-                                                            foundUser.tasks.push(foundTask);
-                                                        }
-                                                    })
-                                                    foundUser.save()
-                                                })
-                                            })
-                                        })
-                                    })
-                                }
-                            })
-                            //Files
-                            var dir = 'changeLogs/'
-                            if(!fs.exists(dir)) {
-                                fs.mkdir(dir);
-                                console.log("No Such Folder , Creating...");
-                            }else{
-                                fs.readdir(dir,(err,files) => {
-                                    if(files <= 0 && !err){
-                                        createPhonesData();
-                                        File.createFileOnInit();
-                                    }
-                                })
-                            }
-                        })
-                    })
-                }else{
-                    console.log(err)
-                }
-            })
-        })
-    })
-}
 
 function createPhonesData(){
     User.find({} , (err,users) =>{
@@ -76,6 +20,71 @@ function createPhonesData(){
             phoneNumber : phoneNumber
             })
             user.save();
+        })
+    })
+}
+
+
+function getFiles(users) {
+    var dir = 'changeLogs/'
+    if(!fs.existsSync(dir)) {
+        fs.mkdir(dir);
+        console.log("No Such Folder , Creating...");
+        File.checkFiles(dir,users)
+    }else if(fs.existsSync(dir)){
+        File.checkFiles(dir,users)
+    }else{
+        console.log("Files Already Exist");
+    }
+}
+
+async function seed(){
+    await utilsDb.insertPostToDb()
+    await utilsDb.insertTasksToDb();
+    await seedUsersToDb();
+    populateDataToUsers();                              
+
+}
+
+function seedUsersToDb(){
+    var usersArr = [];
+    User.countDocuments({} , (err,count) => {
+        utils.getUsers().then(usersData => {
+            if(!err&&count <= 0){
+                usersArr.push(usersData);
+                usersArr.forEach(user => {
+                    User.insertMany(user , (err,users) => {
+                        if(err){
+                            console.log(err);
+                        }else{
+                            createPhonesData();
+                            getFiles(users);
+                        }
+                    })
+                })
+            }
+        })
+    })
+}
+
+function populateDataToUsers(){
+    Post.find({} , (err,foundPosts) => {
+        Task.find({} , (err,foundTasks) => {
+            User.find({} , (err,foundUsers) => {
+                foundUsers.forEach(foundUser => {
+                    foundPosts.forEach(foundPost => {
+                        if(foundUser.id === foundPost.userId){
+                            foundUser.posts.push(foundPost);
+                        }
+                    })
+                    foundTasks.forEach(foundTask => {
+                        if(foundUser.id === foundTask.userId){
+                            foundUser.tasks.push(foundTask);
+                        }
+                    })
+                    foundUser.save();
+                })
+            })
         })
     })
 }
