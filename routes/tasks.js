@@ -5,29 +5,27 @@ var User = require("../models").User;
 var mongoose = require('mongoose')
 
 //Create New Task
-router.route("/:id/tasks/new").post((req,res) => {
-    Task.find({} , (err,tasks) => {
-        if(err){
-            console.log(err)
-        }else{
-            var guid = mongoose.Types.ObjectId().toString();
-            User.findById(req.params.id , (err,user) => {
-                const newTask = new Task({
-                    userId:user.id,
-                    id: guid,
-                    title : req.body.title,
-                });
-                newTask.save();
-                user.tasks.push(newTask);
-                user.save();
-                return res.send(newTask._id)
-            })
-        }
+router.route("/:id/task/new").post((req,res) => {
+    var guid = mongoose.Types.ObjectId().toString();
+    User.findById(req.params.id , (err,user) => {
+        const newTask = new Task({
+            userId:user.id,
+            id: guid,
+            title : req.body.title,
+        });
+        newTask.save();
+        user.tasks.push(newTask);
+        user.save();
+        var newData = {
+            title:newTask.title,
+            body:newTask.body
+        };
+        return res.send(newTask._id)
     })
 })
 
 //Edit Task
-router.route("/:id/tasks/:task_id").put((req,res) => {
+router.route("/:id/task/:task_id").put((req,res) => {
     console.log(req.body);
     User.findById(req.params.id , (err,user) => {
         if(req.body.title == null || req.body.completed == null){
@@ -40,7 +38,7 @@ router.route("/:id/tasks/:task_id").put((req,res) => {
             Task.findByIdAndUpdate(req.params.task_id , {
                 title: req.body.title,
                 completed: req.body.completed
-            } , (err,updatedPost) => {
+            } , (err,updatedTask) => {
                 if(err){
                     console.log(err)
                 }else{
@@ -52,6 +50,7 @@ router.route("/:id/tasks/:task_id").put((req,res) => {
                             }
                         })
                         user.save();
+                        File.getPostNewDataAndUpdate(user,updatedTask,updatedTask._id);
                         return res.send("Task Updated")
                     })
                 }
@@ -63,7 +62,7 @@ router.route("/:id/tasks/:task_id").put((req,res) => {
 
 
 //Delete Task
-router.route("/:id/tasks/:task_id").delete((req,res) => {
+router.route("/:id/task/:task_id").delete((req,res) => {
     User.findById(req.params.id , (err,user) => {
         if(err){
             console.log(err)
@@ -84,6 +83,11 @@ router.route("/:id/tasks/:task_id").delete((req,res) => {
                                     }
                                 })
                                 user.save();
+                                var oldData = {
+                                    Title:deletedTask.title,
+                                    Tody:deletedTask.body
+                                }
+                                File.writeNewLog(user,Task,oldData,"Task Deleted")
                                 return res.send("Task Deleted");
                             })
                         }

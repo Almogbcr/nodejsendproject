@@ -6,7 +6,6 @@ var User = require('../models').User;
 var Post = require('../models').Post;
 var Task = require('../models').Task;
 
-var date = new Date(Date.now());
 
 //Get Specific User by Id
 router.route("/:id").get((req,res) => {
@@ -47,109 +46,69 @@ router.route("/new").post((req,res) => {
     var newUser = new User({
         id:guid,
         name: req.body.name,
-        username: req.body.username,
         email: req.body.email,
         address: {
-            street: req.body.address.street,
-            suite: req.body.address.suite,
             city: req.body.address.city,
-            zipcode: req.body.address.zipcode,
-            geo:{
-                lat: req.body.address.geo.lat,
-                lng: req.body.address.geo.lng,
-                }
-        },
-        phone: req.body.phone,
-        website: req.body.website,
-        company:{
-            name: req.body.company.name,
-            catchPhrase: req.body.company.catchPhrase,
-            bs: req.body.company.bs
-            },
-        })
+        }
+    })
     newUser.save();
     File.createFileOnUserCreate(newUser);
     return res.send("User Created");
 })
 
 //Update a User
-router.route("/:id").put((req,res) => {
-    if(req.body.name == null 
-        || req.body.username == null 
-        || req.body.email == null 
-        || req.body.address.street == null
-        || req.body.address.suite == null 
-        || req.body.address.city == null 
-        || req.body.address.zipcode == null 
-        || req.body.address.geo.lat == null 
-        || req.body.address.geo.lng == null 
-        || req.body.phone == null 
-        || req.body.website == null 
-        || req.body.company.name == null 
-        || req.body.company.catchPhrase == null 
-        || req.body.company.bs == null 
-        ){
-   
-            return res.send("One or more of the data is missing.\nPlease fill the data correctly.\nData has not been modified\n" + 
-            "Example:\n"+
-            `{ 
-                "name": "Leanne Graham",
-                "username": "Bret",
-                "email": "Sincere@april.biz",
-                "address":{ 
-                    "street": "Kulas Light",
-                    "suite": "Apt. 556",
-                    "city": "Gwenborough",
-                    "zipcode": "92998-3874",
-                    "geo": { 
-                        "lat": "-37.3159", 
-                        "lng": "81.1496"
-                        } 
-                    },
-                    "phone": "1-770-736-8031 x56442",
-                    "website": "hildegard.org",
-                    "company":{ 
-                        "name": "Romaguera-Crona",
-                        "catchPhrase": "Multi-layered client-server neural-net",
-                        "bs": "harness real-time e-markets"
-                    } 
-            }`)
-    }else{
-        console.log(req.body);
-        User.findByIdAndUpdate(req.params.id ,{
-            name: req.body.name,
-            username: req.body.username,
-            email: req.body.email,
-            address: {
-                street: req.body.address.street,
-                suite: req.body.address.suite,
-                city: req.body.address.city,
-                zipcode: req.body.address.zipcode,
-                geo:{
-                    lat: req.body.address.geo.lat,
-                    lng: req.body.address.geo.lng,
-                }
-            },
-            phone: req.body.phone,
-            website: req.body.website,
-            company:{
-                name: req.body.company.name,
-                catchPhrase: req.body.company.catchPhrase,
-                bs: req.body.company.bs
-            }
-            
-        } , (err,updatedUser) => {
-            if(err){
-                console.log(err)
+router.route("/:id/edit").put((req,res) => {
+    User.findById(req.params.id , (err,user) => {
+        if(err || user == null){
+            return res.send("No Such User")
+        }else{
+            if(req.body.name == null || req.body.username == null || req.body.email == null || req.body.address.street == null
+                || req.body.address.suite == null || req.body.address.city == null || req.body.address.zipcode == null || req.body.address.geo.lat == null 
+                || req.body.address.geo.lng == null || req.body.phone == null || req.body.website == null || req.body.company.name == null 
+                || req.body.company.catchPhrase == null || req.body.company.bs == null ){
+                    doNotChange(user);
+                    return res.send("Update Failed , One or more of the fields are missing");
                 }else{
-                return res.send("Updated");
-                }
-            })
+                    User.findByIdAndUpdate(req.params.id ,{
+                        name: req.body.name,
+                        username: req.body.username,
+                        email: req.body.email,
+                        address: {
+                        street: req.body.address.street,
+                        suite: req.body.address.suite,
+                        city: req.body.address.city,
+                        zipcode: req.body.address.zipcode,
+                            geo:{
+                                lat: req.body.address.geo.lat,
+                                lng: req.body.address.geo.lng,
+                            }
+                        },
+                        phone: req.body.phone,
+                        website: req.body.website,
+                        company:{
+                            name: req.body.company.name,
+                            catchPhrase: req.body.company.catchPhrase,
+                            bs: req.body.company.bs
+                        }
+                    } , (err,updatedUser) => {
+                            if(err){
+                                console.log(err)
+                            }else{
+                                var userGuid = updatedUser._id;
+                                File.renameFileAndUpdate(user,userGuid,req);
+                                return res.send("Updated");
+                            }
+                        })
+                    }
+ 
         }
+    
     })
 
+})
+
 router.route("/:id").delete((req,res) => {
-    User.findOneAndDelete(req.params.id , (err,deletedUser) => {
+    User.findByIdAndDelete(req.params.id , (err,deletedUser) => {
         if(err){
             console.log(err)
         }else{
@@ -167,10 +126,34 @@ router.route("/:id").delete((req,res) => {
                     console.log("Tasks Deleted")
                 }
             })
+            var oldData = {
+                Name:deletedUser.name,
+                Id:deletedUser._id
+            }
+            File.writeNewLog(deletedUser,User,"Delete",oldData,"User Deleted")
             return res.send("Deleted");
         }
     })
 })
+
+function doNotChange(user) {
+    user.name = user.name;
+    user.username = user.username;
+    user.email = user.email;
+    user.address.street = user.address.street;
+    user.address.suite = user.address.suite;
+    user.address.city = user.address.city;
+    user.address.zipcode = user.address.zipcode;
+    user.address.geo.lat = user.address.geo.lat;
+    user.address.geo.lng = user.address.geo.lng;
+    user.phone = user.phone;
+    user.website = user.website;
+    user.companyName = user.company.name;
+    user.company.catchPhrase = user.company.catchPhrase;
+    user.company.bs = user.company.bs;
+}
+
+
 
 
 module.exports = router;

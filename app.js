@@ -18,9 +18,9 @@ app.use(bodyParser.json());
 
 
 app.use("/" , indexRouter);
-app.use("/user" , usersRouter);
-app.use("/user" , postsRouter);
-app.use("/user" , tasksRouter);
+app.use("/users" , usersRouter);
+app.use("/posts" , postsRouter);
+app.use("/tasks" , tasksRouter);
 
 const PORT = 8000 || process.env.PORT
 
