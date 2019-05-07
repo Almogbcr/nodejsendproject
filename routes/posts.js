@@ -10,20 +10,20 @@ var File = require("../utils/utilsFile");
 router.route("/:id/post/new").post((req,res) => {
     var guid = mongoose.Types.ObjectId();
     User.findById(req.params.id , (err,user) => {
-        const newPost = new Post({
-        userId:user.id,
-        id: guid,
-        title : req.body.title,
-        body: req.body.body
-        });
-    newPost.save();
-    user.posts.push(newPost);
-    user.save();
-    var newData = {
-        title:newPost.title,
-        body:newPost.body
-    };
-    return res.send("New Post created");
+        if(user == null){
+            return res.send("No Such User")
+        }else{
+            const newPost = new Post({
+                userId:user.id,
+                id: guid,
+                title : req.body.title,
+                body: req.body.body
+                });
+            newPost.save();
+            user.posts.push(newPost);
+            user.save();
+            return res.send("New Post created");
+        }
     })
 })
 

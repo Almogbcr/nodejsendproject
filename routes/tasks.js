@@ -6,27 +6,26 @@ var mongoose = require('mongoose')
 
 //Create New Task
 router.route("/:id/task/new").post((req,res) => {
-    var guid = mongoose.Types.ObjectId().toString();
+    var guid = mongoose.Types.ObjectId();
     User.findById(req.params.id , (err,user) => {
-        const newTask = new Task({
-            userId:user.id,
-            id: guid,
-            title : req.body.title,
-        });
-        newTask.save();
-        user.tasks.push(newTask);
-        user.save();
-        var newData = {
-            title:newTask.title,
-            body:newTask.body
-        };
-        return res.send(newTask._id)
-    })
+        if(user == null){
+            return res.send("No Such User")
+        }else{
+            const newTask = new Task({
+                userId:user.id,
+                id: guid,
+                title : req.body.title,
+            });
+            newTask.save();
+            user.tasks.push(newTask);
+            user.save();
+            return res.send(newTask._id)
+        }
+    })    
 })
 
 //Edit Task
 router.route("/:id/task/:task_id").put((req,res) => {
-    console.log(req.body);
     User.findById(req.params.id , (err,user) => {
         if(req.body.title == null || req.body.completed == null){
             return res.send("One or more of the data is missing.\nPlease fill the data correctly.\nData has not been modified\n" + 
